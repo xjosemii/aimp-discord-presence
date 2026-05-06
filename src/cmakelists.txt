@@ -37,20 +37,36 @@ endif()
 
 message( "-- Version: ${V_MAJOR}.${V_MINOR}.${V_RELEASE}.${V_BUILD}" )
 
+set( DISCORD_RPC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/discord-rpc )
+set( DISCORD_RPC_INCLUDE_DIR ${DISCORD_RPC_DIR}/include )
+set( DISCORD_RPC_SRC_DIR ${DISCORD_RPC_DIR}/src )
+set( RAPIDJSON_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/rapidjson/include )
+
 file( GLOB SOURCE_FILES
   *.cpp
   *.rc
   *.def
 )
 
-add_library( ${TARGET_NAME} SHARED ${SOURCE_FILES} )
+set( DISCORD_RPC_SOURCE_FILES
+  ${DISCORD_RPC_SRC_DIR}/connection_win.cpp
+  ${DISCORD_RPC_SRC_DIR}/discord_register_win.cpp
+  ${DISCORD_RPC_SRC_DIR}/discord_rpc.cpp
+  ${DISCORD_RPC_SRC_DIR}/dllmain.cpp
+  ${DISCORD_RPC_SRC_DIR}/rpc_connection.cpp
+  ${DISCORD_RPC_SRC_DIR}/serialization.cpp
+)
+
+set_source_files_properties( ${DISCORD_RPC_SOURCE_FILES} PROPERTIES COMPILE_OPTIONS "/W0" )
+
+add_library( ${TARGET_NAME} SHARED ${SOURCE_FILES} ${DISCORD_RPC_SOURCE_FILES} )
 target_include_directories( ${TARGET_NAME} PUBLIC
   ${LIB_DIR}/aimp-sdk/Sources/Cpp
   ${LIB_DIR}/aimp-sdk-cpp-wrapper/
-  ${LIB_DIR}/discord-rpc/win${DISCORD_ARCH}-static/include
+  ${RAPIDJSON_INCLUDE_DIR}
+  ${DISCORD_RPC_INCLUDE_DIR}
+  ${DISCORD_RPC_SRC_DIR}
 )
-
-target_link_libraries( ${TARGET_NAME} PRIVATE ${LIB_DIR}/discord-rpc/win${DISCORD_ARCH}-static/lib/discord-rpc.lib )
 
 set_target_properties( ${TARGET_NAME}
   PROPERTIES
