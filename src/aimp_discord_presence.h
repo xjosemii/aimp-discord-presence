@@ -30,12 +30,12 @@
 class AimpDiscordPresence :
   public Aimp::Implements<Aimp::Plugin, Aimp::ExternalSettingsDialog> {
  public:
-  PWCHAR GetInfo(int index) override;
-  DWORD GetCategory() override;
-  bool Load() override;
-  bool Unload() override;
-  void Notification(int id, IUnknown* data) override;
-  void ShowSettings(HWND parent_wnd) override;
+  PWCHAR WINAPI GetInfo(int index) override;
+  DWORD WINAPI GetCategory() override;
+  bool WINAPI Load() override;
+  bool WINAPI Unload() override;
+  void WINAPI Notification(int id, IUnknown* data) override;
+  void WINAPI ShowSettings(HWND parent_wnd) override;
 
  private:
   void OnStreamStartSubtrack();
@@ -54,7 +54,11 @@ class AimpDiscordPresence :
   void LoadConfig();
 
   template <typename T>
-  void LoadConfigValue(Aimp::Core::Service::Config config, const std::wstring& key, T value);
+  void LoadConfigValue(Aimp::Core::Service::Config config, const std::wstring& key, T value) {
+    if (!config.Get(key, value)) {
+      config.Set(key, *value);
+    }
+  }
 
   struct Properties {
     int64_t application_id = 429559336982020107LL;

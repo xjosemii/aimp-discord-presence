@@ -20,8 +20,8 @@
 
 #include "aimp_discord_presence.h"
 
-#include <string>
 #include <chrono>
+#include <string>
 
 #include "aimp_core.h"
 #include "aimp_filemanager.h"
@@ -34,16 +34,21 @@
 DiscordRichPresence discord_presence;
 
 __declspec(dllexport) HRESULT WINAPI AIMPPluginGetHeader(void** Header) {
-  *Header = new AimpDiscordPresence();
+  if (!Header) {
+    return E_POINTER;
+  }
+
+  // devolvemos IAIMPPlugin para no mover el puntero
+  *Header = static_cast<IAIMPPlugin*>(new AimpDiscordPresence());
   return S_OK;
 }
 
-LPWSTR AimpDiscordPresence::GetInfo(int index) {
+LPWSTR WINAPI AimpDiscordPresence::GetInfo(int index) {
   switch (index) {
     case Info::kName:
       return const_cast<LPWSTR>(L"Discord Presence");
     case Info::kAuthor:
-      return const_cast<LPWSTR>(L"Exle");
+      return const_cast<LPWSTR>(L"Exle - xjosemi");
     case Info::Description::kShort:
       return const_cast<LPWSTR>(L"Update your discord status with the rich presence");
   }
@@ -51,19 +56,16 @@ LPWSTR AimpDiscordPresence::GetInfo(int index) {
   return nullptr;
 }
 
-DWORD AimpDiscordPresence::GetCategory() {
+DWORD WINAPI AimpDiscordPresence::GetCategory() {
   return Category::kAddons;
 }
 
-bool AimpDiscordPresence::Load() {
-  if (!Aimp::Player::Service::Player()) {
-    return false;
-  }
-
+bool WINAPI AimpDiscordPresence::Load() {
   LoadConfig();
   InitializeMessageDispatcher();
 
-  Discord_Initialize(std::to_string(settings.application_id).c_str(), nullptr, 0, nullptr);
+  const std::string application_id = std::to_string(settings.application_id);
+  Discord_Initialize(application_id.c_str(), nullptr, 0, nullptr);
 
   return true;
 }
@@ -101,14 +103,7 @@ void AimpDiscordPresence::InitializeMessageDispatcher() {
                           });
 }
 
-template<typename T>
-void AimpDiscordPresence::LoadConfigValue(Aimp::Core::Service::Config config, const std::wstring& key, T value) {
-  if (!config.Get(key, value)) {
-    config.Set(key, *value);
-  }
-}
-
-bool AimpDiscordPresence::Unload() {
+bool WINAPI AimpDiscordPresence::Unload() {
   Aimp::Messages::Service::MessageDispatcher().UnhookAll();
 
   Discord_ClearPresence();
@@ -117,8 +112,18 @@ bool AimpDiscordPresence::Unload() {
   return true;
 }
 
-void AimpDiscordPresence::Notification(int, IUnknown*) {}
-void AimpDiscordPresence::ShowSettings(HWND) {}
+void WINAPI AimpDiscordPresence::Notification(int, IUnknown*) {}
+
+void WINAPI AimpDiscordPresence::ShowSettings(HWND parent_wnd) {
+  MessageBoxW(
+    parent_wnd,
+    L"Discord Presence no tiene opciones configurables todavia.\n\n"
+    L"Si no ves el estado en Discord, revisa que AIMP este reproduciendo y que Discord "
+    L"este abierto al mismo tiempo.",
+    L"Discord Presence",
+    MB_OK | MB_ICONINFORMATION
+  );
+}
 
 void AimpDiscordPresence::OnPlayerState(DWORD, int param1) {
   if (param1 == 0 || param1 == 1 && !settings.status.use_pause) {
@@ -168,6 +173,8 @@ void AimpDiscordPresence::SetInfo() {
   discord_presence.details = nullptr;
   discord_presence.largeImageKey = "aimp";
   discord_presence.largeImageText = nullptr;
+  // 2 es listening
+  discord_presence.type = 2;
 
   Aimp::Player::Service::Player player;
   Aimp::FileManager::FileInfo fileinfo = player.GetInfo();
