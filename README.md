@@ -1,12 +1,12 @@
-# AIMP Discord Presence fork de xjosemi
+# AIMP Discord Presence
 
 <p align="center">
   <img src=".github/aimp-discord-312.png" alt="AIMP Discord Presence">
 </p>
 
-Este repositorio es un fork personal del plugin original de [Exle](https://github.com/Exle/aimp-discord-presence) para [AIMP](https://aimp.ru/).
+Este repositorio es mi fork del plugin original de [Exle](https://github.com/Exle/aimp-discord-presence) para [AIMP](https://aimp.ru/).
 
-La idea de este fork es mantener el comportamiento del plugin original, pero corrigiendo los puntos que hoy daban problemas al compilarlo, cargarlo en AIMP y mostrar la actividad en Discord.
+Lo mantengo con una idea simple: que siga haciendo lo mismo que el original, pero sin los problemas que tenia este fork al compilar, cargar en AIMP y mandar la actividad a Discord.
 
 ## Que hace
 
@@ -14,16 +14,15 @@ El plugin actualiza el Rich Presence de Discord segun lo que se este reproducien
 
 En este fork la actividad se envia como `listening`, asi que en Discord aparece como reproduciendo en lugar de jugando.
 
-## Mejoras de esta version
+## Novedades en la 1.1.1
 
-- cambia el tipo de actividad de Discord a `listening`
-- corrige la carga del plugin dentro de AIMP
-- recompila el proyecto sin depender del wrapper C++ que faltaba en el repo original
-- integra `discord-rpc` dentro del arbol del proyecto para poder compilarlo desde cero
-- anade comentarios en las zonas delicadas del codigo para que el mantenimiento sea mas simple
-- actualiza el autor visible del plugin a `Exle - xjosemi`
+- la actividad de Discord sale como `listening`
+- arreglada la carga del plugin en AIMP
+- el proyecto vuelve a compilar entero desde el repo
+- `discord-rpc` y `rapidjson` quedan dentro del proyecto
+- en AIMP el autor del plugin aparece como `Exle - xjosemi`
 
-## Cambios tecnicos importantes
+## Notas tecnicas
 
 - se reconstruyo la capa minima de integracion con el SDK de AIMP
 - los servicios de AIMP se obtienen del `core` por `QueryInterface`
@@ -65,4 +64,4 @@ Version `1.1.1`
 ## Creditos
 
 - plugin original por Exle
-- mantenimiento de este fork y ajustes de compilacion por xjosemi
+- fork y mantenimiento por xjosemi
